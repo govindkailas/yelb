@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 6379
+    - port: 6379
   selector:
     app: redis-server
     tier: cache
@@ -24,7 +24,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 5432
+    - port: 5432
   selector:
     app: yelb-db
     tier: backenddb
@@ -39,7 +39,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 4567
+    - port: 4567
   selector:
     app: yelb-appserver
     tier: middletier
@@ -54,13 +54,13 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 80
-    protocol: TCP
-    targetPort: 80
+    - port: 80
+      protocol: TCP
+      targetPort: 80
   selector:
     app: yelb-ui
     tier: frontend
----
+--- 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -68,9 +68,9 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: 
+    matchLabels:
       app: yelb-ui
-      tier: frontend    
+      tier: frontend
   template:
     metadata:
       labels:
@@ -78,10 +78,10 @@ spec:
         tier: frontend
     spec:
       containers:
-      - name: yelb-ui
-        image:  mreferre/yelb-ui:0.10
-        ports:
-        - containerPort: 80
+        - name: yelb-ui
+          image: mreferre/yelb-ui:0.10
+          ports:
+            - containerPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -90,7 +90,7 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: 
+    matchLabels:
       app: redis-server
       tier: cache
   template:
@@ -100,11 +100,24 @@ spec:
         tier: cache
     spec:
       containers:
-      - name: redis-server
-        image: redis:4.0.2
-        ports:
-        - containerPort: 6379
+        - name: redis-server
+          image: redis:4.0.2
+          ports:
+            - containerPort: 6379
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pv-claim
+  labels:
+    app: yelb-db
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---     
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -112,7 +125,7 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: 
+    matchLabels:
       app: yelb-db
       tier: backenddb
   template:
@@ -122,10 +135,20 @@ spec:
         tier: backenddb
     spec:
       containers:
-      - name: yelb-db
-        image:  mreferre/yelb-db:0.6
-        ports:
-        - containerPort: 5432
+        - name: yelb-db
+          image: mreferre/yelb-db:0.6
+          ports:
+            - containerPort: 5432
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/k8s
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: db-pv-claim        
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -134,7 +157,7 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: 
+    matchLabels:
       app: yelb-appserver
       tier: middletier
   template:
@@ -144,11 +167,7 @@ spec:
         tier: middletier
     spec:
       containers:
-      - name: yelb-appserver
-        image:  mreferre/yelb-appserver:0.7
-        ports:
-        - containerPort: 4567
-
-
-
-
+        - name: yelb-appserver
+          image: mreferre/yelb-appserver:0.7
+          ports:
+            - containerPort: 4567
