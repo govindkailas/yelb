@@ -1,3 +1,4 @@
+[![Docker Image CI](https://github.com/govindkailas/yelb/actions/workflows/docker-image.yml/badge.svg)](https://github.com/govindkailas/yelb/actions/workflows/docker-image.yml)
 
 #### Why Yelb 
 
