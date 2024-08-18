@@ -9,11 +9,11 @@ updates:
     directory: "./yelb-appserver" # Location of package manifests
     schedule:
       interval: "weekly"
-- package-ecosystem: "npm" # See documentation for possible values
-    directory: ".yelb-ui/clarity-seed-newfiles" # Location of package manifests
-    schedule:
-      interval: "weekly"
-- package-ecosystem: "docker" # See documentation for possible values
-    directory: "./yelb-db" # Location of package manifests
+  - package-ecosystem: "npm" # See documentation for possible values
+      directory: ".yelb-ui/clarity-seed-newfiles" # Location of package manifests
+      schedule:
+        interval: "weekly"
+  - package-ecosystem: "docker" # See documentation for possible values
+      directory: "./yelb-db" # Location of package manifests
     schedule:
       interval: "weekly"
